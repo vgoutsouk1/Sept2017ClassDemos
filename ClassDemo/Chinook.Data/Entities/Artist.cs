@@ -14,5 +14,9 @@ namespace Chinook.Data.Entities
         [StringLength(120)]
         public string Name { get; set; }
 
+        //navigation property
+        //to a child
+        public virtual ICollection<Album> Albums { get; set; }
+
     }
 }
