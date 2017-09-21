@@ -1,0 +1,59 @@
+//simple where
+//select artists who have ch in their name
+from artist in Artists
+where artist.Name.Contains("ch")
+select artist
+
+//select artists who have multiple albums
+//we will need to do a aggregrate test in the where
+//aggregrates are done against a collection
+from artist in Artists
+where artist.Albums.Count() > 1
+select artist
+
+//together
+from artist in Artists
+where artist.Albums.Count() > 1 &&
+artist.Name.Contains("ch")
+select artist
+
+	//from instancevariablename in entity
+	//select for each instance of entity the count of the children
+	from x in Artists
+	select new 
+	{
+	artistname = x.Name, 
+	albumcount = x.Albums.Count()
+	}
+
+	//from instancevariablename in entity
+	//select for each instance of entity the count of the children
+	var results = from x in Artists
+	select new 
+	{
+	artistname = x.Name, 
+	albumcount = x.Albums.Count()
+	};
+	results.Dump();
+
+
+void Main()
+{
+	//from instancevariablename in entity
+	//select for each instance of entity the count of the children
+	var results = from x in Artists
+	select new MyData()
+	{
+	artistname = x.Name, 
+	albumcount = x.Albums.Count()
+	};
+	results.Dump();
+	
+}
+
+// Define other methods and classes here
+public class MyData
+{
+ public string artistname{get;set;}
+ public int albumcount{get;set;}
+}

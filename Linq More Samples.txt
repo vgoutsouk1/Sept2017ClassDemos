@@ -1,0 +1,93 @@
+//Navigation can be used to obtain information from a "Parent"
+
+var results = from x in Albums
+orderby x.ReleaseYear descending,
+        x.Artist.Name ascending,
+		x.Title ascending
+select new
+{	
+	Year = x.ReleaseYear,
+	Artist = x.Artist.Name,
+	Title = x.Title,
+};
+results.Dump();
+
+//Navigation can be used to travel up a "foreign key" line
+
+var tresults = from x in Tracks
+		where x.Album.Artist.Name.Equals("U2")
+		select new 
+		{
+			Song = x.Name,
+			FromAlbum = x.Album.Title,
+			Length = x.Milliseconds /60000.0
+		};
+tresults.Dump();
+
+// To get both the Albums with tracks and without tracks
+//you can use a .Union()
+//In a union you need to ensure cast typing is correct
+//    columns cast type match identically
+// (query1).Union(query2).Union(query3).OrderBy (first sort).ThenBy(nth sort)
+(from x in Albums
+where x.Tracks.Count() > 0
+select new
+	{
+		Title = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = x.Tracks.Count(),
+		AlbumCost = x.Tracks.Sum(y => y.UnitPrice)
+	}
+).Union(from x in Albums
+where x.Tracks.Count() == 0
+select new
+	{
+		Title = x.Title,
+		Artist = x.Artist.Name,
+		TrackCount = 0,
+		AlbumCost = 0.00m
+	}
+).OrderBy(y => y.Artist).ThenByDescending(y => y.AlbumCost)
+
+
+//sometimes it is easier to develop queries in multiple steps
+
+var results = (from x in MediaTypes
+		select x.Tracks.Count).Max();
+results.Dump();
+
+var popularMediaType = from x in MediaTypes
+		where x.Tracks.Count() >= results
+		select new
+		{
+			type = x.Name,
+			TCount = x.Tracks.Count()
+		};
+popularMediaType.Dump();
+
+var CombinedpopularMediaType = from x in MediaTypes
+		where x.Tracks.Count() >= (from z in MediaTypes
+					select z.Tracks.Count).Max()
+		select new
+		{
+			type = x.Name,
+			TCount = x.Tracks.Count()
+		};
+CombinedpopularMediaType.Dump();
+
+
+//which artist(s) has released the most albums
+var maxalbumcount = (from x in Artists
+			select x.Albums.Count()).Max();
+maxalbumcount.Dump();
+
+var artistlist = from x in Artists
+			where x.Albums.Count() >= maxalbumcount
+			select new
+			{
+			Artist = x.Name,
+			AlbumReleases = x.Albums.Count(),
+			AblumTitles = from y in x.Albums
+					select y.Title
+			};
+artistlist.Dump();
