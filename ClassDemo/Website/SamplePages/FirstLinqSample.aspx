@@ -4,7 +4,7 @@
        <h1>Albums for Artist</h1>
     <asp:Label ID="Label1" runat="server" Text="Select an Artist"></asp:Label>
     <asp:DropDownList ID="ArtistList" runat="server" DataSourceID="ArtistListODS" DataTextField="Name" DataValueField="ArtistId"></asp:DropDownList>
-    <asp:Button ID="Button1" runat="server" Text="Button" />
+    <asp:Button ID="Button1" runat="server" Text="Submit" />
     <asp:GridView ID="ArtistAlbumsList" runat="server" AutoGenerateColumns="False" DataSourceID="ArtistAlbumListODS" AllowPaging="True">
         <Columns>
             <asp:BoundField DataField="Title" HeaderText="Title" SortExpression="Title"></asp:BoundField>
