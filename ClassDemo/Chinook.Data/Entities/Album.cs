@@ -26,7 +26,9 @@ namespace Chinook.Data.Entities
         public string ReleaseLabel { get; set; }
 
        //navigation prperties 
-       //to a parent
+       //album(child) points to artist (parent)
+       //singular relationshio
        public virtual Artist Artist { get; set; }
+        public virtual ICollection<Track> Track { get; set; }
     }
 }
