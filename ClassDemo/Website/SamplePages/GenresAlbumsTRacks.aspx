@@ -29,10 +29,75 @@
                 ItemType ="Chinook.Data.DTOs.AlbumDTO">
                 <ItemTemplate>
                     <strong>Album:
-                        <%# string.Format("{0}  ({1}) Tracks: {2}",Eval("Title"), Eval("releaseyear"), Eval("numberoftracks")) %></strong>
+                        <%# string.Format("{0}  ({1}) Tracks: {2}",Eval("Title"), Eval("releaseyear"), Eval("numberoftracks")) %>
 
+                    </strong>
+
+                    <asp:ListView ID="AlbumTracks" runat="server"
+                        ItemType=" Chinook.Data.POCOs.TrackPOCO"
+                        DataSource="<%# Item.tracks %>">
+                        <LayoutTemplate>
+                            <table>
+                                <tr>
+                                    <th>Song</th>
+                                    <th>Length</th>
+                                </tr>
+                                <tr id="itemPlaceholder" runat="server"></tr>
+                            </table>
+                        </LayoutTemplate>
+
+                        <ItemTemplate> <%--placeholder are put in here--%>
+                           <tr style="background-color:lightgrey">
+                               <td style="width:600px"><%# Item.song %></td>
+                               <td><%# Item.length %></td>
+                           </tr>
+                        </ItemTemplate>
+                        <AlternatingItemTemplate>
+                            <tr>
+                               <td style="background-color:papayawhip"><%# Item.song %></td>
+                               <td style="background-color:papayawhip"><%# Item.length %></td>
+                           </tr>
+                        </AlternatingItemTemplate>
+                        <EmptyDataTemplate>
+                            <tr>
+                               <td colspan="2">No data available at this time</td>
+                               
+                           </tr>
+                        </EmptyDataTemplate>
+
+
+                    </asp:ListView>
+
+         <%--           <asp:GridView ID="AlbumTracks" runat="server"
+                        ItemType=" Chinook.Data.POCOs.TrackPOCO"
+                        DataSource='<%# Item.tracks %>' AutoGenerateColumns="False">
+
+
+                        <Columns>
+                            <asp:TemplateField HeaderText="Song">
+                                <AlternatingItemTemplate >
+                                    <asp:Label runat="server" Text="<%# Item.song %>"
+                                        BackColor="#c0c0c0">
+
+
+                                    </asp:Label>
+                                    
+                                </AlternatingItemTemplate>
+                                
+                                <HeaderStyle HorizontalAlign="Left"></HeaderStyle>
+
+                                <ItemStyle HorizontalAlign="Left"></ItemStyle>
+                            </asp:TemplateField>
+                            <asp:TemplateField HeaderText="Length">
+                                <ItemTemplate>
+                                    <asp:Label runat="server" Text="<%# Item.length %>"></asp:Label>
+                                </ItemTemplate>
+                                <ItemStyle HorizontalAlign="Right"></ItemStyle>
+                            </asp:TemplateField>
+                        </Columns>
+                    </asp:GridView>--%>
                     </br>
-                    <asp:Repeater ID="AlbumTracks" runat="server"
+                    <%--<asp:Repeater ID="AlbumTracks" runat="server"
                        DataSource =" <%# Item.tracks %>" 
                         ItemType =" Chinook.Data.POCOs.TrackPOCO">
                         <HeaderTemplate>
@@ -59,7 +124,7 @@
                             </table>
                         </FooterTemplate>
                         
-                    </asp:Repeater>
+                    </asp:Repeater>--%>
                 </ItemTemplate>
                 <SeparatorTemplate>
                     <hr style="height:3px;border:none;color:#000;background-color:#000;"/>
