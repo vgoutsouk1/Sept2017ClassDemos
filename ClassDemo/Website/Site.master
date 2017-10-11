@@ -95,7 +95,7 @@
                                 <asp:MenuItem Text="Album by Year Range" NavigateUrl="~/SamplePages/AlbumYearange"></asp:MenuItem>
                             </asp:MenuItem>
 
-                            <asp:MenuItem Text="Home" NavigateUrl="~/About.aspx"></asp:MenuItem>
+                            <asp:MenuItem Text="CRUD" NavigateUrl="~/SamplePages/TabbedCRUDReview.aspx"></asp:MenuItem>
                             <asp:MenuItem Text="Contact" NavigateUrl="~/Contact.aspx"></asp:MenuItem>
                             <asp:MenuItem Text="Genres Albums and Tracks" NavigateUrl="~/SamplePages/GenresAlbumsTRacks.aspx"></asp:MenuItem>
 
