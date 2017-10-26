@@ -32,6 +32,57 @@ namespace ChinookSystem.BLL.Security
                 }
             }
         }
+
+        #region UserRole Administration
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public List<string> ListAllRoleNames()
+        {
+            return this.Roles.Where(r => r.Name != SecurityRoles.RegisteredUsers).Select(r => r.Name).ToList();
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public List<RoleProfile> ListAllRoles()
+        {
+            var um = new UserManager();
+            var results = from role in Roles.ToList()
+                          select new RoleProfile
+                          {
+                              RoleId = role.Id,
+                              RoleName = role.Name,
+                              UserNames = role.Users.Select(r => um.FindById(r.UserId).UserName)
+                          };
+            return results.ToList();
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Insert, false)]
+        public void AddRole(RoleProfile role) //add role
+        {
+            if (!this.RoleExists(role.RoleName))
+            {
+                this.Create(new IdentityRole(role.RoleName));
+            }
+            else
+            {
+                throw new Exception("Creation failed. " + role.RoleName + " already exists.");
+            }
+        }
+
+        [DataObjectMethod(DataObjectMethodType.Delete, false)]
+        public void DeleteRole(RoleProfile role)  //delete role
+        {
+            var existing = this.FindById(role.RoleId);
+            if (existing.Users.Count() == 0)
+            {
+                this.Delete(this.FindById(role.RoleId));
+            }
+            else
+            {
+                throw new Exception("Delete failed. " + role.RoleName + " has existing users. Reassign users first.");
+            }
+
+
+        }
+        #endregion
     }
-    
+
 }
