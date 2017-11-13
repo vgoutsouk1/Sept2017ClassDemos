@@ -105,8 +105,7 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
                 (PlaylistName.Text, username);
                 PlayList.DataSource = playlist;
                 PlayList.DataBind();
-            }
-            );
+            },"//title","here is yout current plalist.");
         }
     }
 
@@ -114,6 +113,30 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
         ListViewCommandEventArgs e)
     {
         //code to go here
+        //ListViewCommandEventArgs parameter e contains the CommandArg value
+        if (string.IsNullOrEmpty(PlaylistName.Text))
+        {
+         
+            MessageUserControl.ShowInfo("Warning", "Playlist name is required");
+        }
+        else
+        {
+            string username = User.Identity.Name;
+            // the TrackID is going to come from e.CommandArgument
+            // e.CommandArgument is an object therefore convert to string 
+            int trackid = int.Parse(e.CommandArgument.ToString());
+
+            //the follwing code calls a BLL method to add to the database
+            MessageUserControl.TryRun(() =>
+            {
+
+                PlaylistTracksController sysmger = new PlaylistTracksController();
+                List<UserPlaylistTrack> refreshresults = sysmger.Add_TrackToPLaylist(PlaylistName.Text, username, trackid);
+                PlayList.DataSource = refreshresults;
+                PlayList.DataBind();
+            }, "Success", "Track added to the playlist");
+            
+        }
     }
 
     protected void MoveUp_Click(object sender, EventArgs e)
