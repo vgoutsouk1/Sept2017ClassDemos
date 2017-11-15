@@ -142,15 +142,132 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
     protected void MoveUp_Click(object sender, EventArgs e)
     {
         //code to go here
+        if(PlayList.Rows.Count == 0)
+        {
+            MessageUserControl.ShowInfo("warning", "No playlist has been retrieved");
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("warning", "No playlist name has been supplied");
+            }
+            else
+            {
+                //check only one row selected
+                int trackid = 0;
+                int tracknumber = 0; // optional
+                int rowselected = 0; //search flag
+                //create a pointer to use for the access of the 
+                //gridview control
+                CheckBox playlistselection = null;
+                //traverse the gridview checking each row for a checked CheckBox
+                for(int i = 0; i < PlayList.Rows.Count; i++)
+                {
+                    // find the checkbox on the indexed gridview row
+                    //playlist selection will point to the checkbox
+                    playlistselection = PlayList.Rows[i].FindControl("Selected") as CheckBox;
+                    // if is checked
+                    if (playlistselection.Checked)
+                    {
+                        trackid = int.Parse((PlayList.Rows[i].FindControl("TrackId") as Label).Text);
+                        tracknumber = int.Parse((PlayList.Rows[i].FindControl("TrackNumber") as Label).Text);
+                        rowselected++;
+                    }
+                } //eoFor loop
+                if (rowselected != 1)
+                {
+                    MessageUserControl.ShowInfo("warning", "Select one track to move.");
+                }
+                else
+                {
+                    if(tracknumber == 1)
+                    {
+                        MessageUserControl.ShowInfo("Information", "Track can not be moved, already at the top of list.");
+                    }
+                    else
+                    {
+                        // at this point you have playlistname, username, trackid
+                        //which is needed to move the track
+                        //move the track Via BLL
+                        MoveTrack(trackid, tracknumber, "up");
+
+                    }
+                }
+            }
+        }
     }
 
     protected void MoveDown_Click(object sender, EventArgs e)
     {
         //code to go here
+
+        if (PlayList.Rows.Count == 0)
+        {
+            MessageUserControl.ShowInfo("warning", "No playlist has been retrieved");
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+                MessageUserControl.ShowInfo("warning", "No playlist name has been supplied");
+            }
+            else
+            {
+                //check only one row selected
+                int trackid = 0;
+                int tracknumber = 0; // optional
+                int rowselected = 0; //search flag
+                //create a pointer to use for the access of the 
+                //gridview control
+                CheckBox playlistselection = null;
+                //traverse the gridview checking each row for a checked CheckBox
+                for (int i = 0; i < PlayList.Rows.Count; i++)
+                {
+                    // find the checkbox on the indexed gridview row
+                    //playlist selection will point to the checkbox
+                    playlistselection = PlayList.Rows[i].FindControl("Selected") as CheckBox;
+                    // if is checked
+                    if (playlistselection.Checked)
+                    {
+                        trackid = int.Parse((PlayList.Rows[i].FindControl("TrackId") as Label).Text);
+                        tracknumber = int.Parse((PlayList.Rows[i].FindControl("TrackNumber") as Label).Text);
+                        rowselected++;
+                    }
+                } //eoFor loop
+                if (rowselected != 1)
+                {
+                    MessageUserControl.ShowInfo("warning", "Select one track to move.");
+                }
+                else
+                {
+                    if (tracknumber == PlayList.Rows.Count)
+                    {
+                        MessageUserControl.ShowInfo("Information", "Track can not be moved, already at the bottom of list.");
+                    }
+                    else
+                    {
+                        // at this point you have playlistname, username, trackid
+                        //which is needed to move the track
+                        //move the track Via BLL
+                        MoveTrack(trackid, tracknumber, "down");
+                    }
+                }
+            }
+        }
     }
     protected void MoveTrack(int trackid, int tracknumber, string direction)
     {
         //code to go here
+        MessageUserControl.TryRun(() => {
+            //standard call to bll
+            PlaylistTracksController sysmger = new PlaylistTracksController();
+            sysmger.MoveTrack(User.Identity.Name, PlaylistName.Text, trackid, tracknumber, direction);
+            //refresh the list
+            List<UserPlaylistTrack> results = sysmger.List_TracksForPlaylist(PlaylistName.Text, User.Identity.Name);
+            PlayList.DataSource = results;
+            PlayList.DataBind();
+        },"Success","Track moved");
     }
     protected void DeleteTrack_Click(object sender, EventArgs e)
     {
