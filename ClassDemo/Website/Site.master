@@ -108,7 +108,7 @@
                                  
                             </asp:MenuItem>
                             <asp:MenuItem Text="ManagePlaylist" NavigateUrl="~/SamplePages/ManagePlaylist.aspx"></asp:MenuItem>
-                            <asp:MenuItem Text="ManagePlaylist" NavigateUrl="~/SamplePages/GenreReport.aspx"></asp:MenuItem>
+                            <asp:MenuItem Text="Report" NavigateUrl="~/SamplePages/GenreReport.aspx"></asp:MenuItem>
                              <asp:MenuItem Text="CRUD" NavigateUrl="~/SamplePages/TabbedCRUDReview.aspx"></asp:MenuItem>
                            
 
