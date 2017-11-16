@@ -17,7 +17,7 @@ namespace ChinookSystem.BLL
     [DataObject]
     public class TrackController
     {
-        [DataObjectMethod(DataObjectMethodType.Select,false)]
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
         public List<TrackList> List_TracksForPlaylistSelection(string tracksby, int argid)
         {
             using (var context = new ChinookContext())
@@ -107,12 +107,36 @@ namespace ChinookSystem.BLL
                                       };
                             break;
                         }
-                }
 
+                        //results =  from x in context.Tracks
+                        //           orderby x.Name
+                        //           where tracksby.Equals... to be finished
+                        //}
+
+                }
                 return results.ToList();
             }
         }//eom
+        
+        [DataObjectMethod(DataObjectMethodType.Select, false)]
+        public List<GenreAlbumReport> GenreAlbumReport_Get()
+        {
+            using (var context = new ChinookContext())
+            {
+                var results = from x in context.Tracks
+                              select new GenreAlbumReport
+                              {
+                                  GenreName = x.Genre.Name,
+                                  AlbumTitle = x.Album.Title,
+                                  TrackName = x.Name,
+                                  MilliSeconds = x.Milliseconds,
+                                  Bytes = x.Bytes,
+                                  UnitPrice = x.UnitPrice
+                              };
+                return results.ToList();
+            }
+        }
 
-       
+
     }//eoc
 }
