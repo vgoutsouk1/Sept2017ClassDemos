@@ -34,7 +34,7 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
         //PreRenderComplete occurs just after databinding page events
         //load a pointer to point to your DataPager control
         DataPager thePager = TracksSelectionList.FindControl("DataPager1") as DataPager;
-        if (thePager !=null)
+        if (thePager != null)
         {
             //this code will check the StartRowIndex to see if it is greater that the
             //total count of the collection
@@ -105,18 +105,18 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
                 (PlaylistName.Text, username);
                 PlayList.DataSource = playlist;
                 PlayList.DataBind();
-            },"//title","here is yout current plalist.");
+            }, "//title", "here is yout current plalist.");
         }
     }
 
-    protected void TracksSelectionList_ItemCommand(object sender, 
+    protected void TracksSelectionList_ItemCommand(object sender,
         ListViewCommandEventArgs e)
     {
         //code to go here
         //ListViewCommandEventArgs parameter e contains the CommandArg value
         if (string.IsNullOrEmpty(PlaylistName.Text))
         {
-         
+
             MessageUserControl.ShowInfo("Warning", "Playlist name is required");
         }
         else
@@ -135,14 +135,14 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
                 PlayList.DataSource = refreshresults;
                 PlayList.DataBind();
             }, "Success", "Track added to the playlist");
-            
+
         }
     }
 
     protected void MoveUp_Click(object sender, EventArgs e)
     {
         //code to go here
-        if(PlayList.Rows.Count == 0)
+        if (PlayList.Rows.Count == 0)
         {
             MessageUserControl.ShowInfo("warning", "No playlist has been retrieved");
         }
@@ -162,7 +162,7 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
                 //gridview control
                 CheckBox playlistselection = null;
                 //traverse the gridview checking each row for a checked CheckBox
-                for(int i = 0; i < PlayList.Rows.Count; i++)
+                for (int i = 0; i < PlayList.Rows.Count; i++)
                 {
                     // find the checkbox on the indexed gridview row
                     //playlist selection will point to the checkbox
@@ -181,7 +181,7 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
                 }
                 else
                 {
-                    if(tracknumber == 1)
+                    if (tracknumber == 1)
                     {
                         MessageUserControl.ShowInfo("Information", "Track can not be moved, already at the top of list.");
                     }
@@ -259,7 +259,8 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
     protected void MoveTrack(int trackid, int tracknumber, string direction)
     {
         //code to go here
-        MessageUserControl.TryRun(() => {
+        MessageUserControl.TryRun(() =>
+        {
             //standard call to bll
             PlaylistTracksController sysmger = new PlaylistTracksController();
             sysmger.MoveTrack(User.Identity.Name, PlaylistName.Text, trackid, tracknumber, direction);
@@ -267,10 +268,55 @@ public partial class SamplePages_ManagePlaylist : System.Web.UI.Page
             List<UserPlaylistTrack> results = sysmger.List_TracksForPlaylist(PlaylistName.Text, User.Identity.Name);
             PlayList.DataSource = results;
             PlayList.DataBind();
-        },"Success","Track moved");
+        }, "Success", "Track moved");
     }
     protected void DeleteTrack_Click(object sender, EventArgs e)
     {
         //code to go here
+        if (PlayList.Rows.Count == 0)
+        {
+            MessageUserControl.ShowInfo("warning", "No playlist has been retrieved.");
+        }
+        else
+        {
+            if (string.IsNullOrEmpty(PlaylistName.Text))
+            {
+
+                MessageUserControl.ShowInfo("Warning", "Playlist name is required");
+            }
+            else
+            {
+                //collect the selected tracks to delete
+                List<int> trackstodelete = new List<int>();
+                int selectedrows = 0;
+                CheckBox playlistselection = null;
+                for(int i = 0; i< PlayList.Rows.Count; i++)
+                {
+                    playlistselection = PlayList.Rows[i].FindControl("Selected") as CheckBox;
+                    if (playlistselection.Checked)
+                    {
+                        trackstodelete.Add(int.Parse((PlayList.Rows[i].FindControl("TrackId") as Label).Text));
+                        selectedrows++;
+                    }
+                }
+                if(selectedrows == 0)
+                {
+                    MessageUserControl.ShowInfo("Information", "No Playlist tracks have been selected");
+                }
+                else
+                {
+                    // at this point you have the required data to send to BLL for processing
+                    MessageUserControl.TryRun(() => 
+                    {
+                        PlaylistTracksController sysmgr = new PlaylistTracksController();
+                        List<UserPlaylistTrack> playlistdata = sysmgr.DeleteTracks(User.Identity.Name, PlaylistName.Text, trackstodelete);
+                        PlayList.DataSource = playlistdata;
+                        PlayList.DataBind();
+                    },"Removed","Tracks have been removed");
+                    
+                }
+            }
+        }
     }
 }
+

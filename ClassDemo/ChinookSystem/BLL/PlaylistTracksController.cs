@@ -27,9 +27,9 @@ namespace ChinookSystem.BLL
                 //this value will be an Ienumerable<T> collection or it should be NULL.
                 //to ensure that results does end up with a valid value use the .FirstOrDefault
                 var results = (from x in context.Playlists
-                              where x.UserName.Equals(username)
-                              && x.Name.Equals(playlistname)
-                              select x).FirstOrDefault();
+                               where x.UserName.Equals(username)
+                               && x.Name.Equals(playlistname)
+                               select x).FirstOrDefault();
 
                 var theTracks = from x in context.PlaylistTracks
                                 where x.PlaylistId.Equals(results.PlaylistId)
@@ -53,9 +53,9 @@ namespace ChinookSystem.BLL
                 // PART 1: Handle Playlist record
                 //query to get playlistid
                 var exists = (from x in context.Playlists
-                               where x.UserName.Equals(username)
-                               && x.Name.Equals(playlistname)
-                               select x).FirstOrDefault();
+                              where x.UserName.Equals(username)
+                              && x.Name.Equals(playlistname)
+                              select x).FirstOrDefault();
 
                 //initialize the tracknumber for the track going into PlaylistTracks
                 int tracknumber = 0;
@@ -81,7 +81,7 @@ namespace ChinookSystem.BLL
                     // in our example, tracks exists only once on each playlist
                     newtrack = exists.PlaylistTracks.SingleOrDefault(x => x.TrackId == trackid);
                     // this will be null if the track is NOT on the playlist tracks
-                    if(newtrack != null)
+                    if (newtrack != null)
                     {
                         throw new Exception("Playlist already has the requested track in it");
                     }
@@ -114,7 +114,7 @@ namespace ChinookSystem.BLL
                               && x.Name.Equals(playlistname)
                               select x).FirstOrDefault();
 
-                if(exists == null)
+                if (exists == null)
                 {
                     throw new Exception("Playlist has been removed");
                 }
@@ -124,7 +124,7 @@ namespace ChinookSystem.BLL
                     PlaylistTrack movetrack = (from x in exists.PlaylistTracks
                                                where x.TrackId == trackid
                                                select x).FirstOrDefault();
-                    if(movetrack == null)
+                    if (movetrack == null)
                     {
                         throw new Exception("Playlist track has been removed");
                     }
@@ -134,7 +134,7 @@ namespace ChinookSystem.BLL
                         PlaylistTrack othertrack = null;
                         if (direction.Equals("up"))
                         {
-                            if(movetrack.TrackNumber == 1)
+                            if (movetrack.TrackNumber == 1)
                             {
                                 throw new Exception("Playlist track cannot be moved");
                             }
@@ -142,9 +142,9 @@ namespace ChinookSystem.BLL
                             {
                                 //get the other track
                                 othertrack = (from x in exists.PlaylistTracks
-                                              where x.TrackNumber == movetrack.TrackNumber -1
+                                              where x.TrackNumber == movetrack.TrackNumber - 1
                                               select x).FirstOrDefault();
-                                if(othertrack == null)
+                                if (othertrack == null)
                                 {
                                     throw new Exception("Playlist track cannot be moved");
                                 }
@@ -159,30 +159,30 @@ namespace ChinookSystem.BLL
                         }
                         else
                         {//down
-                           
-                                if (movetrack.TrackNumber == exists.PlaylistTracks.Count)
+
+                            if (movetrack.TrackNumber == exists.PlaylistTracks.Count)
+                            {
+                                throw new Exception("Playlist track cannot be moved down");
+                            }
+                            else
+                            {
+                                //get the other track
+                                othertrack = (from x in exists.PlaylistTracks
+                                              where x.TrackNumber == movetrack.TrackNumber + 1
+                                              select x).FirstOrDefault();
+                                if (othertrack == null)
                                 {
                                     throw new Exception("Playlist track cannot be moved down");
                                 }
                                 else
                                 {
-                                    //get the other track
-                                    othertrack = (from x in exists.PlaylistTracks
-                                                  where x.TrackNumber == movetrack.TrackNumber + 1
-                                                  select x).FirstOrDefault();
-                                    if (othertrack == null)
-                                    {
-                                        throw new Exception("Playlist track cannot be moved down");
-                                    }
-                                    else
-                                    {
-                                        // at this point you can exchange track numbers
-                                        movetrack.TrackNumber += 1;
-                                        othertrack.TrackNumber -= 1;
+                                    // at this point you can exchange track numbers
+                                    movetrack.TrackNumber += 1;
+                                    othertrack.TrackNumber -= 1;
 
-                                    }
                                 }
-                            
+                            }
+
                         }// end of up/down
                         //stage changes for SaveChanges()
                         //indicate only the field tjat meeds to be updated
@@ -195,11 +195,47 @@ namespace ChinookSystem.BLL
         }//eom
 
 
-        public void DeleteTracks(string username, string playlistname, List<int> trackstodelete)
+        public List<UserPlaylistTrack> DeleteTracks(string username, string playlistname, List<int> trackstodelete)
         {
             using (var context = new ChinookContext())
             {
-               //code to go here
+                //code to go here
+                Playlist exists = (from x in context.Playlists
+                                   where x.UserName.Equals(username, StringComparison.OrdinalIgnoreCase)
+                                   && x.Name.Equals(playlistname, StringComparison.OrdinalIgnoreCase)
+                                   select x).FirstOrDefault();
+                if (exists == null)
+                {
+                    throw new Exception("Playlist has been removed from our site.");
+                }
+                else
+                {
+                    // the tracks that are to be kept
+                    var trackskept = exists.PlaylistTracks.Where(tr => !trackstodelete.Any(tod => tod == tr.TrackId)).Select(tr => tr);
+                    // remove the tracks in the trackstodelete list
+                    PlaylistTrack item = null;
+                    foreach (var deletetrack in trackstodelete)
+                    {
+                        item = exists.PlaylistTracks.Where(dx => dx.TrackId == deletetrack).FirstOrDefault();
+                        if (item != null)
+                        {
+                            exists.PlaylistTracks.Remove(item);
+                        }
+                    }
+                    //renumber the kept tracks so that the tracknumber
+                    //is sequential as is expected by all other operations
+                    // in our database there is NO holes in the numeric sequence.
+                    int number = 1;
+                    foreach (var trackkept in trackskept)
+                    {
+                        trackkept.TrackNumber = number;
+                        context.Entry(trackkept).Property(y => y.TrackNumber).IsModified = true;
+                        number++;
+                    }
+                    context.SaveChanges();
+                    return List_TracksForPlaylist(playlistname, username);
+                }
+
 
 
             }
