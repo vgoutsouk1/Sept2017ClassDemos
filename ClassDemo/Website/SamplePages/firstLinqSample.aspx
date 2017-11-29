@@ -17,6 +17,7 @@
         <Columns>
             <asp:BoundField DataField="Title" HeaderText="Title" SortExpression="Title"></asp:BoundField>
             <asp:BoundField DataField="Released" HeaderText="Released" SortExpression="Released"></asp:BoundField>
+            <asp:CommandField ShowSelectButton="True"></asp:CommandField>
         </Columns>
     </asp:GridView>
     <asp:ObjectDataSource ID="ArtistListODS" runat="server"
